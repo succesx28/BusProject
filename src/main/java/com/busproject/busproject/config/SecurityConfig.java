@@ -40,8 +40,9 @@ public class SecurityConfig {
            .authorizeHttpRequests(auth -> auth
                .requestMatchers("/api/auth/**").permitAll()
                .requestMatchers("/h2-console/**").permitAll()
-               .requestMatchers("/", "/login", "/dashboard", "/buses").permitAll()
+               .requestMatchers("/", "/login", "/dashboard", "/buses", "/viajes").permitAll()
                .requestMatchers("/bus", "/bus/**").permitAll()
+               .requestMatchers("/viaje", "/viaje/**").permitAll()
                .anyRequest().authenticated())
            .formLogin(form -> form
                .loginPage("/login")

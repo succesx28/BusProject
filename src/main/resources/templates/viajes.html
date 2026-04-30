@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buses - BusProject</title>
+    <title>Viajes - BusProject</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; min-height: 100vh; }
@@ -116,19 +116,9 @@
             font-weight: 600;
             letter-spacing: 0.03em;
         }
-        tbody tr { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; cursor: pointer; }
+        tbody tr { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
         tbody tr:hover { background: #f0f4ff; }
         tbody td { padding: 0.8rem 1rem; color: #333; }
-
-        .badge {
-            display: inline-block;
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.76rem;
-            font-weight: 600;
-        }
-        .badge-active   { background: #d1fae5; color: #065f46; }
-        .badge-inactive { background: #fee2e2; color: #991b1b; }
 
         .pagination {
             display: flex;
@@ -166,6 +156,19 @@
         }
         .btn-primary:hover { background: #5a6fd6; }
 
+        .btn-view {
+            padding: 0.3rem 0.8rem;
+            background: #1a1a2e;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-view:hover { background: #0f3460; }
+
         /* Modal */
         .modal-overlay {
             display: none;
@@ -193,7 +196,7 @@
         }
         .modal-close:hover { color: #333; }
         .field { margin-bottom: 0.85rem; display: flex; gap: 0.5rem; }
-        .field label { font-weight: 600; color: #555; font-size: 0.85rem; min-width: 130px; }
+        .field label { font-weight: 600; color: #555; font-size: 0.85rem; min-width: 160px; }
         .field span  { color: #222; font-size: 0.85rem; }
 
         /* Form styles */
@@ -206,6 +209,7 @@
             margin-bottom: 0.35rem;
         }
         .form-group input[type="text"],
+        .form-group input[type="datetime-local"],
         .form-group select {
             width: 100%;
             padding: 0.55rem 0.75rem;
@@ -218,23 +222,11 @@
             outline: none;
         }
         .form-group input[type="text"]:focus,
+        .form-group input[type="datetime-local"]:focus,
         .form-group select:focus {
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
             background: #fff;
-        }
-        .form-group .checkbox-row {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-top: 0.25rem;
-        }
-        .form-group .checkbox-row input[type="checkbox"] {
-            width: 16px; height: 16px; cursor: pointer;
-        }
-        .form-group .checkbox-row span {
-            font-size: 0.88rem;
-            color: #444;
         }
         .form-actions {
             display: flex;
@@ -268,8 +260,8 @@
         <a href="/dashboard" class="nav-item">Dashboard</a>
 
         <div class="nav-section-label" style="margin-top:1rem;">Gestión</div>
-        <a href="/buses" class="nav-item active">Buses</a>
-        <a href="/viajes" class="nav-item">Viajes</a>
+        <a href="/buses" class="nav-item">Buses</a>
+        <a href="/viajes" class="nav-item active">Viajes</a>
 
         <div class="nav-section-label" style="margin-top:1rem;">Sistema</div>
         <a href="#" class="nav-item">Configuración</a>
@@ -281,7 +273,7 @@
 
 <div class="main">
     <div class="topbar">
-        <h1>Buses</h1>
+        <h1>Viajes</h1>
         <div class="topbar-user">
             <div class="avatar">A</div>
             <span>Administrador</span>
@@ -290,25 +282,12 @@
 
     <div class="content">
         <div class="card">
-            <!-- Add Marca Modal -->
-<div class="modal-overlay" id="add-marca-overlay" onclick="closeAddMarcaModal(event)">
-    <div class="modal">
-        <button class="modal-close" onclick="closeAddMarcaModalDirect()">&#x2715;</button>
-        <h2>Agregar Marca</h2>
-        <form id="add-marca-form" onsubmit="submitMarca(event)">
-            <div class="form-group">
-                <label for="marcaNombre">Nombre de Marca</label>
-                <input type="text" id="marcaNombre" name="nombre" required placeholder="Ej: Volvo">
+            <div class="card-header">
+                <span>Lista de Viajes</span>
+                <button class="btn-primary" onclick="openCreateModal()">Crear Viaje</button>
             </div>
-            <div class="form-actions">
-                <button type="button" class="btn-cancel" onclick="closeAddMarcaModalDirect()">Cancelar</button>
-                <button type="submit" class="btn-primary">Guardar</button>
-            </div>
-        </form>
-    </div>
-</div>
             <div id="table-wrap">
-                <p class="loading">Cargando buses...</p>
+                <p class="loading">Cargando viajes...</p>
             </div>
             <div class="pagination">
                 <button class="btn-page" id="btn-prev" onclick="changePage(-1)" disabled>Anterior</button>
@@ -320,46 +299,44 @@
 </div>
 
 <!-- Detail Modal -->
-<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+<div class="modal-overlay" id="viaje-detail-overlay" onclick="closeDetailModal(event)">
     <div class="modal">
-        <button class="modal-close" onclick="closeModalDirect()">&#x2715;</button>
-        <h2>Detalle del Bus</h2>
-        <div id="modal-body"></div>
+        <button class="modal-close" onclick="closeDetailModalDirect()">&#x2715;</button>
+        <h2>Detalle del Viaje</h2>
+        <div id="detail-body"></div>
     </div>
 </div>
 
-<!-- Add Bus Modal -->
-<div class="modal-overlay" id="add-bus-overlay" onclick="closeAddBusModal(event)">
+<!-- Create Viaje Modal -->
+<div class="modal-overlay" id="create-viaje-overlay" onclick="closeCreateModal(event)">
     <div class="modal">
-        <button class="modal-close" onclick="closeAddBusModalDirect()">&#x2715;</button>
-        <h2>Agregar Bus</h2>
-        <form id="add-bus-form" onsubmit="submitBus(event)">
+        <button class="modal-close" onclick="closeCreateModalDirect()">&#x2715;</button>
+        <h2>Crear Viaje</h2>
+        <form id="create-viaje-form" onsubmit="submitViaje(event)">
             <div class="form-group">
-                <label for="numeroBus">Numero de Bus</label>
-                <input type="text" id="numeroBus" name="numeroBus" required placeholder="Ej: 101">
+                <label for="origen">Origen</label>
+                <input type="text" id="origen" name="origen" required placeholder="Ej: Lima">
             </div>
             <div class="form-group">
-                <label for="placa">Placa</label>
-                <input type="text" id="placa" name="placa" required placeholder="Ej: ABC-123">
+                <label for="destino">Destino</label>
+                <input type="text" id="destino" name="destino" required placeholder="Ej: Arequipa">
             </div>
             <div class="form-group">
-                <label for="caracteristicas">Caracteristicas</label>
-                <input type="text" id="caracteristicas" name="caracteristicas" placeholder="Ej: Aire acondicionado, 40 asientos">
+                <label for="fechaHoraSalida">Fecha y Hora Salida</label>
+                <input type="datetime-local" id="fechaHoraSalida" name="fechaHoraSalida" required>
             </div>
             <div class="form-group">
-                <label for="marcaSelect">Marca</label>
-                <select id="marcaSelect" name="marcaId" required>
-                    <option value="">Cargando marcas...</option>
+                <label for="fechaHoraLlegadaEstimada">Fecha y Hora Llegada Estimada</label>
+                <input type="datetime-local" id="fechaHoraLlegadaEstimada" name="fechaHoraLlegadaEstimada" required>
+            </div>
+            <div class="form-group">
+                <label for="busSelect">Bus</label>
+                <select id="busSelect" name="busId" required>
+                    <option value="">Cargando buses...</option>
                 </select>
             </div>
-            <div class="form-group">
-                <div class="checkbox-row">
-                    <input type="checkbox" id="activoCheck" name="activo" checked>
-                    <span>Activo</span>
-                </div>
-            </div>
             <div class="form-actions">
-                <button type="button" class="btn-cancel" onclick="closeAddBusModalDirect()">Cancelar</button>
+                <button type="button" class="btn-cancel" onclick="closeCreateModalDirect()">Cancelar</button>
                 <button type="submit" class="btn-primary">Guardar</button>
             </div>
         </form>
@@ -367,52 +344,54 @@
 </div>
 
 <script>
-    let currentPage = 0;
-    let totalPages = 1;
+    var currentPage = 0;
+    var totalPages = 1;
 
-    function loadBuses(page) {
-        fetch('/bus?page=' + page + '&size=10')
-            .then(r => r.json())
-            .then(data => {
+    function loadViajes(page) {
+        fetch('/viaje?page=' + page + '&size=10')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
                 totalPages = data.totalPages || 1;
                 currentPage = data.number || 0;
-                renderTable(data.content || []);
+                renderViajeTable(data.content || []);
                 document.getElementById('page-info').textContent =
                     'Página ' + (currentPage + 1) + ' de ' + totalPages;
                 document.getElementById('btn-prev').disabled = currentPage === 0;
                 document.getElementById('btn-next').disabled = currentPage >= totalPages - 1;
             })
-            .catch(() => {
+            .catch(function() {
                 document.getElementById('table-wrap').innerHTML =
-                    '<p class="loading" style="color:#c0392b">Error al cargar los buses.</p>';
+                    '<p class="loading" style="color:#c0392b">Error al cargar los viajes.</p>';
             });
     }
 
-    function renderTable(buses) {
-        if (buses.length === 0) {
+    function renderViajeTable(viajes) {
+        if (viajes.length === 0) {
             document.getElementById('table-wrap').innerHTML =
-                '<p class="loading">No hay buses registrados.</p>';
+                '<p class="loading">No hay viajes registrados.</p>';
             return;
         }
-        let html = '<table><thead><tr>' +
-            '<th>Numero</th><th>Placa</th><th>Marca</th>' +
-            '<th>Caracteristicas</th><th>Estado</th><th>Fecha Creacion</th>' +
+        var html = '<table><thead><tr>' +
+            '<th>Origen</th><th>Destino</th><th>Fecha Salida</th>' +
+            '<th>Fecha Llegada Est.</th><th>Bus</th><th>Accion</th>' +
             '</tr></thead><tbody>';
-        buses.forEach(bus => {
-            const fecha = bus.fechaCreacion
-                ? new Date(bus.fechaCreacion).toLocaleDateString('es-PE')
+        viajes.forEach(function(v) {
+            var salida = v.fechaHoraSalida
+                ? new Date(v.fechaHoraSalida).toLocaleString('es-PE')
                 : '-';
-            const marca = bus.marca ? bus.marca.nombre : '-';
-            const badge = bus.activo
-                ? '<span class="badge badge-active">Activo</span>'
-                : '<span class="badge badge-inactive">Inactivo</span>';
-            html += '<tr onclick="openModal(' + bus.id + ')">' +
-                '<td>' + bus.numeroBus + '</td>' +
-                '<td>' + bus.placa + '</td>' +
-                '<td>' + marca + '</td>' +
-                '<td>' + (bus.caracteristicas || '-') + '</td>' +
-                '<td>' + badge + '</td>' +
-                '<td>' + fecha + '</td>' +
+            var llegada = v.fechaHoraLlegadaEstimada
+                ? new Date(v.fechaHoraLlegadaEstimada).toLocaleString('es-PE')
+                : '-';
+            var bus = v.bus
+                ? (v.bus.numeroBus + ' - ' + v.bus.placa)
+                : '-';
+            html += '<tr>' +
+                '<td>' + (v.origen || '-') + '</td>' +
+                '<td>' + (v.destino || '-') + '</td>' +
+                '<td>' + salida + '</td>' +
+                '<td>' + llegada + '</td>' +
+                '<td>' + bus + '</td>' +
+                '<td><button class="btn-view" onclick="openDetail(' + v.id + ')">Visualizar</button></td>' +
                 '</tr>';
         });
         html += '</tbody></table>';
@@ -420,96 +399,107 @@
     }
 
     function changePage(dir) {
-        loadBuses(currentPage + dir);
+        loadViajes(currentPage + dir);
     }
 
-    function openModal(id) {
-        fetch('/bus/' + id)
-            .then(r => r.json())
-            .then(bus => {
-                const fecha = bus.fechaCreacion
-                    ? new Date(bus.fechaCreacion).toLocaleString('es-PE')
-                    : '-';
-                document.getElementById('modal-body').innerHTML =
-                    field('ID', bus.id) +
-                    field('Numero de Bus', bus.numeroBus) +
-                    field('Placa', bus.placa) +
-                    field('Marca', bus.marca ? bus.marca.nombre : '-') +
-                    field('Caracteristicas', bus.caracteristicas || '-') +
-                    field('Estado', bus.activo ? 'Activo' : 'Inactivo') +
-                    field('Fecha Creacion', fecha);
-                document.getElementById('modal-overlay').classList.add('open');
-            });
-    }
-
-    function field(label, value) {
+    function detailField(label, value) {
         return '<div class="field"><label>' + label + ':</label><span>' + value + '</span></div>';
     }
 
-    function closeModal(e) {
-        if (e.target === document.getElementById('modal-overlay')) closeModalDirect();
+    function openDetail(id) {
+        fetch('/viaje/' + id)
+            .then(function(r) { return r.json(); })
+            .then(function(v) {
+                var salida = v.fechaHoraSalida
+                    ? new Date(v.fechaHoraSalida).toLocaleString('es-PE')
+                    : '-';
+                var llegada = v.fechaHoraLlegadaEstimada
+                    ? new Date(v.fechaHoraLlegadaEstimada).toLocaleString('es-PE')
+                    : '-';
+                var busInfo = '-';
+                var marcaInfo = '-';
+                if (v.bus) {
+                    busInfo = v.bus.numeroBus + ' - ' + v.bus.placa;
+                    marcaInfo = v.bus.marca ? v.bus.marca.nombre : '-';
+                }
+                document.getElementById('detail-body').innerHTML =
+                    detailField('Origen', v.origen || '-') +
+                    detailField('Destino', v.destino || '-') +
+                    detailField('Fecha Salida', salida) +
+                    detailField('Fecha Llegada Est.', llegada) +
+                    detailField('Bus', busInfo) +
+                    detailField('Marca', marcaInfo);
+                document.getElementById('viaje-detail-overlay').classList.add('open');
+            })
+            .catch(function() {
+                alert('Error al cargar el detalle del viaje.');
+            });
     }
 
-    function closeModalDirect() {
-        document.getElementById('modal-overlay').classList.remove('open');
+    function closeDetailModal(e) {
+        if (e.target === document.getElementById('viaje-detail-overlay')) closeDetailModalDirect();
     }
 
-    /* Add Bus Modal */
-    function openAddBusModal() {
-        var select = document.getElementById('marcaSelect');
-        select.innerHTML = '<option value="">Cargando marcas...</option>';
-        fetch('/bus/marcas')
-            .then(r => r.json())
-            .then(marcas => {
-                select.innerHTML = '<option value="">Seleccione una marca</option>';
-                marcas.forEach(function(m) {
+    function closeDetailModalDirect() {
+        document.getElementById('viaje-detail-overlay').classList.remove('open');
+    }
+
+    /* Create Viaje Modal */
+    function openCreateModal() {
+        var select = document.getElementById('busSelect');
+        select.innerHTML = '<option value="">Cargando buses...</option>';
+        fetch('/bus/all')
+            .then(function(r) { return r.json(); })
+            .then(function(buses) {
+                select.innerHTML = '<option value="">Seleccione un bus</option>';
+                buses.forEach(function(b) {
                     var opt = document.createElement('option');
-                    opt.value = m.id;
-                    opt.textContent = m.nombre;
+                    opt.value = b.id;
+                    opt.textContent = b.numeroBus + ' - ' + b.placa;
                     select.appendChild(opt);
                 });
             })
             .catch(function() {
-                select.innerHTML = '<option value="">Error al cargar marcas</option>';
+                select.innerHTML = '<option value="">Error al cargar buses</option>';
             });
-        document.getElementById('add-bus-overlay').classList.add('open');
+        document.getElementById('create-viaje-overlay').classList.add('open');
     }
 
-    function closeAddBusModal(e) {
-        if (e.target === document.getElementById('add-bus-overlay')) closeAddBusModalDirect();
+    function closeCreateModal(e) {
+        if (e.target === document.getElementById('create-viaje-overlay')) closeCreateModalDirect();
     }
 
-    function closeAddBusModalDirect() {
-        document.getElementById('add-bus-overlay').classList.remove('open');
-        document.getElementById('add-bus-form').reset();
+    function closeCreateModalDirect() {
+        document.getElementById('create-viaje-overlay').classList.remove('open');
+        document.getElementById('create-viaje-form').reset();
     }
 
-    function submitBus(event) {
+    function submitViaje(event) {
         event.preventDefault();
-        var form = document.getElementById('add-bus-form');
+        var form = document.getElementById('create-viaje-form');
         var payload = {
-            numeroBus: form.numeroBus.value.trim(),
-            placa: form.placa.value.trim(),
-            caracteristicas: form.caracteristicas.value.trim(),
-            marcaId: form.marcaId.value,
-            activo: form.activo.checked
+            origen: form.origen.value.trim(),
+            destino: form.destino.value.trim(),
+            fechaHoraSalida: form.fechaHoraSalida.value,
+            fechaHoraLlegadaEstimada: form.fechaHoraLlegadaEstimada.value,
+            busId: form.busId.value
         };
-        fetch('/bus', {
+        fetch('/viaje', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
         .then(function(r) {
-            if (!r.ok) throw new Error('Error al guardar el bus');
-            closeAddBusModalDirect();
-            loadBuses(0);
+            if (!r.ok) throw new Error('Error al crear el viaje');
+            closeCreateModalDirect();
+            loadViajes(0);
         })
         .catch(function(err) {
             alert(err.message);
         });
     }
 
-    loadBuses(0);
+    loadViajes(0);
 </script>
 </body>
 </html>
