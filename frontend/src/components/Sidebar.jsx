@@ -49,14 +49,14 @@ export default function Sidebar() {
         <span style={{ ...sectionLabel, marginTop: '1rem' }}>Gestión</span>
         <Link to="/buses" style={navItemStyle(pathname === '/buses')}>Buses</Link>
         <Link to="/viajes" style={navItemStyle(pathname === '/viajes')}>Viajes</Link>
-        <span style={{ ...sectionLabel, marginTop: '1rem' }}>Sistema</span>
-        <a href="#" style={navItemStyle(false)}>Configuración</a>
+        {/*<span style={{ ...sectionLabel, marginTop: '1rem' }}>Sistema</span>*/}
+        {/*<a href="#" style={navItemStyle(false)}>Configuración</a>*/}
       </nav>
 
       <div style={{ padding: '1.25rem 1.5rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
         <a href="/logout" style={{
           display: 'flex', alignItems: 'center', gap: '0.75rem',
-          width: '100%', padding: '0.7rem 1rem',
+          width: '85%', padding: '0.7rem 1rem',
           background: 'rgba(220,38,38,0.15)', border: '1px solid rgba(220,38,38,0.3)',
           borderRadius: 8, color: '#fca5a5', fontSize: '0.88rem', fontWeight: 600,
           cursor: 'pointer', textDecoration: 'none',
