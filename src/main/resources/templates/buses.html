@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buses - BusProject</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            z-index: 100;
+        }
+        .sidebar-brand {
+            padding: 2rem 1.5rem 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar-brand h2 { color: #fff; font-size: 1.4rem; font-weight: 700; }
+        .sidebar-brand p  { color: rgba(255,255,255,0.5); font-size: 0.75rem; margin-top: 0.25rem; }
+
+        .sidebar-nav { flex: 1; padding: 1.5rem 0; }
+        .nav-section-label {
+            color: rgba(255,255,255,0.35);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 0.5rem 1.5rem;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.75rem 1.5rem;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .nav-item:hover  { color: #fff; background: rgba(255,255,255,0.07); border-left-color: #667eea; }
+        .nav-item.active { color: #fff; background: rgba(102,126,234,0.2); border-left-color: #667eea; }
+
+        .sidebar-footer { padding: 1.25rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.7rem 1rem;
+            background: rgba(220,38,38,0.15);
+            border: 1px solid rgba(220,38,38,0.3);
+            border-radius: 8px;
+            color: #fca5a5;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover { background: rgba(220,38,38,0.3); color: #fff; }
+
+        .main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; }
+
+        .topbar {
+            background: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .topbar h1 { font-size: 1.2rem; color: #1a1a2e; font-weight: 600; }
+        .topbar-user { display: flex; align-items: center; gap: 0.6rem; color: #555; font-size: 0.88rem; }
+        .avatar {
+            width: 34px; height: 34px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 700; font-size: 0.8rem;
+        }
+
+        .content { padding: 2rem; flex: 1; }
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        thead th {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 0.85rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+        tbody tr { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; cursor: pointer; }
+        tbody tr:hover { background: #f0f4ff; }
+        tbody td { padding: 0.8rem 1rem; color: #333; }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            font-weight: 600;
+        }
+        .badge-active   { background: #d1fae5; color: #065f46; }
+        .badge-inactive { background: #fee2e2; color: #991b1b; }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1.25rem;
+            border-top: 1px solid #f0f0f0;
+        }
+        .btn-page {
+            padding: 0.4rem 1rem;
+            border: 1px solid #1a1a2e;
+            border-radius: 6px;
+            background: #1a1a2e;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.82rem;
+            cursor: pointer;
+        }
+        .btn-page:disabled { background: #e5e5e5; border-color: #e5e5e5; color: #aaa; cursor: not-allowed; }
+        .page-info { font-size: 0.85rem; color: #555; }
+
+        .loading { text-align: center; padding: 2.5rem; color: #888; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: #fff;
+            border-radius: 14px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            position: relative;
+        }
+        .modal h2 { font-size: 1.1rem; color: #1a1a2e; margin-bottom: 1.25rem; font-weight: 700; }
+        .modal-close {
+            position: absolute; top: 1rem; right: 1rem;
+            background: none; border: none; font-size: 1.3rem;
+            cursor: pointer; color: #888; line-height: 1;
+        }
+        .modal-close:hover { color: #333; }
+        .field { margin-bottom: 0.85rem; display: flex; gap: 0.5rem; }
+        .field label { font-weight: 600; color: #555; font-size: 0.85rem; min-width: 130px; }
+        .field span  { color: #222; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <h2>BusProject</h2>
+        <p>Sistema de Gestión</p>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Principal</div>
+        <a href="/dashboard" class="nav-item">Dashboard</a>
+
+        <div class="nav-section-label" style="margin-top:1rem;">Gestión</div>
+        <a href="/buses" class="nav-item active">Buses</a>
+        <a href="#" class="nav-item">Rutas</a>
+
+        <div class="nav-section-label" style="margin-top:1rem;">Sistema</div>
+        <a href="#" class="nav-item">Configuración</a>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="/logout" class="btn-logout">Cerrar Sesión</a>
+    </div>
+</aside>
+
+<div class="main">
+    <div class="topbar">
+        <h1>Buses</h1>
+        <div class="topbar-user">
+            <div class="avatar">A</div>
+            <span>Administrador</span>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="card">
+            <div class="card-header">Lista de Buses</div>
+            <div id="table-wrap">
+                <p class="loading">Cargando buses...</p>
+            </div>
+            <div class="pagination">
+                <button class="btn-page" id="btn-prev" onclick="changePage(-1)" disabled>Anterior</button>
+                <span class="page-info" id="page-info">Página 1</span>
+                <button class="btn-page" id="btn-next" onclick="changePage(1)">Siguiente</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModalDirect()">&#x2715;</button>
+        <h2>Detalle del Bus</h2>
+        <div id="modal-body"></div>
+    </div>
+</div>
+
+<script>
+    let currentPage = 0;
+    let totalPages = 1;
+
+    function loadBuses(page) {
+        fetch('/bus?page=' + page + '&size=10')
+            .then(r => r.json())
+            .then(data => {
+                totalPages = data.totalPages || 1;
+                currentPage = data.number || 0;
+                renderTable(data.content || []);
+                document.getElementById('page-info').textContent =
+                    'Página ' + (currentPage + 1) + ' de ' + totalPages;
+                document.getElementById('btn-prev').disabled = currentPage === 0;
+                document.getElementById('btn-next').disabled = currentPage >= totalPages - 1;
+            })
+            .catch(() => {
+                document.getElementById('table-wrap').innerHTML =
+                    '<p class="loading" style="color:#c0392b">Error al cargar los buses.</p>';
+            });
+    }
+
+    function renderTable(buses) {
+        if (buses.length === 0) {
+            document.getElementById('table-wrap').innerHTML =
+                '<p class="loading">No hay buses registrados.</p>';
+            return;
+        }
+        let html = '<table><thead><tr>' +
+            '<th>Numero</th><th>Placa</th><th>Marca</th>' +
+            '<th>Caracteristicas</th><th>Estado</th><th>Fecha Creacion</th>' +
+            '</tr></thead><tbody>';
+        buses.forEach(bus => {
+            const fecha = bus.fechaCreacion
+                ? new Date(bus.fechaCreacion).toLocaleDateString('es-PE')
+                : '-';
+            const marca = bus.marca ? bus.marca.nombre : '-';
+            const badge = bus.activo
+                ? '<span class="badge badge-active">Activo</span>'
+                : '<span class="badge badge-inactive">Inactivo</span>';
+            html += '<tr onclick="openModal(' + bus.id + ')">' +
+                '<td>' + bus.numeroBus + '</td>' +
+                '<td>' + bus.placa + '</td>' +
+                '<td>' + marca + '</td>' +
+                '<td>' + (bus.caracteristicas || '-') + '</td>' +
+                '<td>' + badge + '</td>' +
+                '<td>' + fecha + '</td>' +
+                '</tr>';
+        });
+        html += '</tbody></table>';
+        document.getElementById('table-wrap').innerHTML = html;
+    }
+
+    function changePage(dir) {
+        loadBuses(currentPage + dir);
+    }
+
+    function openModal(id) {
+        fetch('/bus/' + id)
+            .then(r => r.json())
+            .then(bus => {
+                const fecha = bus.fechaCreacion
+                    ? new Date(bus.fechaCreacion).toLocaleString('es-PE')
+                    : '-';
+                document.getElementById('modal-body').innerHTML =
+                    field('ID', bus.id) +
+                    field('Numero de Bus', bus.numeroBus) +
+                    field('Placa', bus.placa) +
+                    field('Marca', bus.marca ? bus.marca.nombre : '-') +
+                    field('Caracteristicas', bus.caracteristicas || '-') +
+                    field('Estado', bus.activo ? 'Activo' : 'Inactivo') +
+                    field('Fecha Creacion', fecha);
+                document.getElementById('modal-overlay').classList.add('open');
+            });
+    }
+
+    function field(label, value) {
+        return '<div class="field"><label>' + label + ':</label><span>' + value + '</span></div>';
+    }
+
+    function closeModal(e) {
+        if (e.target === document.getElementById('modal-overlay')) closeModalDirect();
+    }
+
+    function closeModalDirect() {
+        document.getElementById('modal-overlay').classList.remove('open');
+    }
+
+    loadBuses(0);
+</script>
+</body>
+</html>

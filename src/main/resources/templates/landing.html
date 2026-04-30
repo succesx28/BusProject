@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - BusProject</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            z-index: 100;
+        }
+        .sidebar-brand {
+            padding: 2rem 1.5rem 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar-brand h2 { color: #fff; font-size: 1.4rem; font-weight: 700; letter-spacing: 0.5px; }
+        .sidebar-brand p  { color: rgba(255,255,255,0.5); font-size: 0.75rem; margin-top: 0.25rem; }
+
+        .sidebar-nav { flex: 1; padding: 1.5rem 0; }
+        .nav-section-label {
+            color: rgba(255,255,255,0.35);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 0.5rem 1.5rem;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.75rem 1.5rem;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .nav-item:hover { color: #fff; background: rgba(255,255,255,0.07); border-left-color: #667eea; }
+        .nav-item.active { color: #fff; background: rgba(102,126,234,0.2); border-left-color: #667eea; }
+
+        .sidebar-footer {
+            padding: 1.25rem 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.7rem 1rem;
+            background: rgba(220,38,38,0.15);
+            border: 1px solid rgba(220,38,38,0.3);
+            border-radius: 8px;
+            color: #fca5a5;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover { background: rgba(220,38,38,0.3); color: #fff; }
+
+        .main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; }
+
+        .topbar {
+            background: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .topbar h1 { font-size: 1.2rem; color: #1a1a2e; font-weight: 600; }
+        .topbar-user { display: flex; align-items: center; gap: 0.6rem; color: #555; font-size: 0.88rem; }
+        .avatar {
+            width: 34px; height: 34px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 700; font-size: 0.8rem;
+        }
+
+        .content { padding: 2rem; flex: 1; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.1); }
+        .stat-icon {
+            width: 52px; height: 52px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; font-weight: 700; flex-shrink: 0; color: #fff;
+        }
+        .stat-icon.blue   { background: #667eea; }
+        .stat-icon.green  { background: #10b981; }
+        .stat-icon.orange { background: #f59e0b; }
+        .stat-info h3 { font-size: 1.6rem; font-weight: 700; color: #1a1a2e; }
+        .stat-info p  { font-size: 0.8rem; color: #888; margin-top: 2px; }
+
+        .section-title { font-size: 1rem; font-weight: 700; color: #1a1a2e; margin-bottom: 1rem; }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+        .action-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            text-decoration: none;
+            color: #333;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .action-card:hover { border-color: #667eea; box-shadow: 0 4px 16px rgba(102,126,234,0.2); }
+        .action-card h3 { font-size: 1rem; font-weight: 700; color: #1a1a2e; margin-bottom: 0.3rem; }
+        .action-card p  { font-size: 0.82rem; color: #888; }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <h2>BusProject</h2>
+        <p>Sistema de Gestión</p>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Principal</div>
+        <a href="/dashboard" class="nav-item active">Dashboard</a>
+
+        <div class="nav-section-label" style="margin-top:1rem;">Gestión</div>
+        <a href="/buses" class="nav-item">Buses</a>
+        <a href="#" class="nav-item">Rutas</a>
+
+        <div class="nav-section-label" style="margin-top:1rem;">Sistema</div>
+        <a href="#" class="nav-item">Configuración</a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="/logout" class="btn-logout">Cerrar Sesión</a>
+    </div>
+</aside>
+
+<div class="main">
+    <div class="topbar">
+        <h1>Dashboard</h1>
+        <div class="topbar-user">
+            <div class="avatar">A</div>
+            <span>Administrador</span>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">Bus</div>
+                <div class="stat-info">
+                    <h3>5</h3>
+                    <p>Buses registrados</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">OK</div>
+                <div class="stat-info">
+                    <h3>4</h3>
+                    <p>Buses activos</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">Rut</div>
+                <div class="stat-info">
+                    <h3>0</h3>
+                    <p>Rutas configuradas</p>
+                </div>
+            </div>
+        </div>
+
+        <p class="section-title">Acceso Rápido</p>
+        <div class="quick-actions">
+            <a href="/buses" class="action-card">
+                <h3>Gestión de Buses</h3>
+                <p>Ver lista, filtrar y consultar detalles de cada bus</p>
+            </a>
+            <a href="#" class="action-card">
+                <h3>Rutas</h3>
+                <p>Configura y administra las rutas de viaje</p>
+            </a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
