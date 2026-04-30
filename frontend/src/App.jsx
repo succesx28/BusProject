@@ -1,12 +1,19 @@
-import BusTable from './components/BusTable'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import LoginPage from './pages/LoginPage'
+import DashboardPage from './pages/DashboardPage'
+import BusesPage from './pages/BusesPage'
+import ViajesPage from './pages/ViajesPage'
 
-function App() {
+export default function App() {
   return (
-    <div style={{ fontFamily: 'sans-serif', padding: '2rem', maxWidth: '1100px', margin: '0 auto' }}>
-      <h1 style={{ color: '#1a1a2e', marginBottom: '1.5rem' }}>Gestión de Buses</h1>
-      <BusTable />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/buses" element={<BusesPage />} />
+        <Route path="/viajes" element={<ViajesPage />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
-
-export default App
